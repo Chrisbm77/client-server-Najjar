@@ -14,16 +14,7 @@ and fetching JDE EnterpriseOne development reference documents (PAR file
 structure, table/view/event-rule design, etc.) — all gated by the same
 API key, all served fresh from the hosted API on every call.
 
-Setup:
-    pip install mcp requests
-
-Connect it to Claude Desktop:
-    Settings -> Connectors -> Add custom connector
-    Command: python3
-    Args: /full/path/to/mcp_server.py
-    Environment variables:
-        JDE_API_URL = https://your-server.example.com
-        JDE_API_KEY = <the deployment-specific key you were given>
+Setup: see SETUP.md in this repo for the full install process.
 """
 import os
 from typing import Optional
