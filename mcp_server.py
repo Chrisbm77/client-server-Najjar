@@ -25,7 +25,7 @@ from mcp.server.fastmcp import FastMCP
 
 API_URL = os.environ.get("JDE_API_URL", "").rstrip("/")
 API_KEY = os.environ.get("JDE_API_KEY", "").strip()
-REQUEST_TIMEOUT_SECONDS = 20
+REQUEST_TIMEOUT_SECONDS = int(os.environ.get("JDE_REQUEST_TIMEOUT_SECONDS", "90"))
 
 # Device ID — a random ID generated once and saved next to this script,
 # then reused on every future run. Only matters if your vendor has device
