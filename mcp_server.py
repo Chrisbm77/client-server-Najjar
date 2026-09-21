@@ -17,6 +17,7 @@ API key, all served fresh from the hosted API on every call.
 Setup: see SETUP.md in this repo for the full install process.
 """
 import os
+import uuid
 from typing import Optional
 
 import requests
@@ -25,6 +26,37 @@ from mcp.server.fastmcp import FastMCP
 API_URL = os.environ.get("JDE_API_URL", "").rstrip("/")
 API_KEY = os.environ.get("JDE_API_KEY", "").strip()
 REQUEST_TIMEOUT_SECONDS = 20
+
+# Device ID — a random ID generated once and saved next to this script,
+# then reused on every future run. Only matters if your vendor has device
+# binding enabled for your API key; if not, this is sent but simply
+# ignored by the server. Deleting the saved file (or moving to a new
+# computer) generates a new ID, which the server will treat as a
+# different device — contact your vendor if that happens unexpectedly on
+# a key with device binding enabled.
+DEVICE_ID_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".device_id")
+
+
+def _get_device_id() -> str:
+    try:
+        if os.path.exists(DEVICE_ID_PATH):
+            with open(DEVICE_ID_PATH, "r", encoding="utf-8") as f:
+                existing = f.read().strip()
+            if existing:
+                return existing
+    except OSError:
+        pass  # fall through to generating a fresh one for this run
+
+    new_id = str(uuid.uuid4())
+    try:
+        with open(DEVICE_ID_PATH, "w", encoding="utf-8") as f:
+            f.write(new_id)
+    except OSError:
+        pass  # couldn't persist it — this run still works, just won't be remembered next time
+    return new_id
+
+
+DEVICE_ID = _get_device_id()
 
 mcp = FastMCP("jde-database")
 
@@ -63,7 +95,7 @@ def call_api(path: str, payload: Optional[dict] = None) -> str:
         resp = requests.post(
             f"{API_URL}{path}",
             json=payload or {},
-            headers={"Authorization": f"Bearer {API_KEY}"},
+            headers={"Authorization": f"Bearer {API_KEY}", "X-Device-ID": DEVICE_ID},
             timeout=REQUEST_TIMEOUT_SECONDS,
         )
     except requests.RequestException as e:
@@ -81,7 +113,7 @@ def call_api_get(path: str) -> str:
     try:
         resp = requests.get(
             f"{API_URL}{path}",
-            headers={"Authorization": f"Bearer {API_KEY}"},
+            headers={"Authorization": f"Bearer {API_KEY}", "X-Device-ID": DEVICE_ID},
             timeout=REQUEST_TIMEOUT_SECONDS,
         )
     except requests.RequestException as e:
