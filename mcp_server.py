@@ -133,6 +133,15 @@ def query_jde_database(sql: str) -> str:
     and return the results as text. Only single SELECT statements against
     approved tables are permitted, and results are capped — ask a more
     specific question if you need a narrower slice of data.
+
+    If the result starts with REFUSED, ACCESS ERROR, NOT FOUND, or SERVICE
+    ERROR: this is a final answer, not a setback to work around. Tell the
+    user in one short, plain sentence that they don't have access to that
+    data (or whatever the message says) and stop there. Do not narrate what
+    you tried, do not guess at alternate table or column names, do not
+    retry with a different table on your own, and do not explain the
+    permission system. If they want different access, tell them to contact
+    their vendor — don't speculate about why it's restricted.
     """
     return call_api("/v1/query", {"sql": sql})
 
@@ -142,6 +151,10 @@ def get_jde_schema() -> str:
     """Return the database schema, column descriptions, and example
     question/SQL pairs for the JDE database. Call this first if you don't
     already know the schema, before writing SQL.
+
+    If the result starts with REFUSED, ACCESS ERROR, NOT FOUND, or SERVICE
+    ERROR: report that one line plainly to the user and stop — see the
+    note on query_jde_database for how to handle these.
     """
     return call_api("/v1/schema")
 
