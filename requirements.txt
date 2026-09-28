@@ -1,2 +1,5 @@
-mcp
-requests
+# Pinned deliberately. A newer `mcp` package (>=1.10) has broken this
+# project before with: "No module named 'mcp.server.fastmcp'". Do not
+# bump this without testing an install end-to-end first.
+mcp==1.9.4
+requests>=2.31,<3
