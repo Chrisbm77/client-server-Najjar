@@ -77,6 +77,12 @@ def _handle_response(resp, result_key: str) -> str:
             detail = "Not found."
         return f"NOT FOUND: {detail}"
     if resp.status_code != 200:
+        try:
+            detail = resp.json().get("detail")
+        except Exception:
+            detail = None
+        if detail:
+            return f"SERVICE ERROR ({resp.status_code}): {detail}"
         return f"SERVICE ERROR: unexpected response ({resp.status_code})."
     try:
         return resp.json().get(result_key, "")
