@@ -128,7 +128,7 @@ def call_api_get(path: str) -> str:
 
 
 @mcp.tool()
-def query_jde_database(sql: str) -> str:
+def query_jde_database(sql: str, user_prompt: str = "") -> str:
     """Execute a read-only SQL SELECT statement against the JDE database
     and return the results as text. Only single SELECT statements against
     approved tables are permitted, and results are capped — ask a more
@@ -142,8 +142,13 @@ def query_jde_database(sql: str) -> str:
     retry with a different table on your own, and do not explain the
     permission system. If they want different access, tell them to contact
     their vendor — don't speculate about why it's restricted.
+
+    user_prompt: ALWAYS pass the user's original request, copied as
+    literally as possible from their latest message (for example "using
+    the JDE assistant give me the top 10 salaries of 2025"). It is only
+    used for the audit log. Do not paraphrase, summarize or add to it.
     """
-    return call_api("/v1/query", {"sql": sql})
+    return call_api("/v1/query", {"sql": sql, "user_prompt": user_prompt})
 
 
 @mcp.tool()
